@@ -7,6 +7,7 @@ import { ApiModule } from './api/modules/api.module';
 import { RouterModule } from '@nestjs/core';
 import { AuthModule } from './api/auth/modules/auth.module';
 import { UserModule } from './api/users/modules/user.module';
+import { ProductModule } from './api/products/modules/product.module';
 
 const configService = new ConfigService();
 
@@ -14,7 +15,6 @@ const configService = new ConfigService();
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(configService.get('DB_HOST')),
-    ApiModule,
     RouterModule.register([{
       path: 'api',
       module: ApiModule,
@@ -26,10 +26,16 @@ const configService = new ConfigService();
         {
           path: 'auth',
           module: AuthModule
+        },
+        {
+          path: 'products',
+          module: ProductModule
         }
       ]
-    }]),
-    AuthModule
+    },]),
+    AuthModule,
+    ApiModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService]

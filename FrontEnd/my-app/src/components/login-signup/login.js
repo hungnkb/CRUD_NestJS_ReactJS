@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 
-const LoginSignup = (props) => {
+const Login = () => {
     const DisplayingErrorMessagesSchema = Yup.object().shape({
         username: Yup.string()
             .matches(
@@ -23,7 +23,6 @@ const LoginSignup = (props) => {
                 "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
             )
             .required('Required!'),
-        email: Yup.string().email('Invalid email address').required('Required')
     });
 
     const navigate = useNavigate();
@@ -37,55 +36,21 @@ const LoginSignup = (props) => {
             validationSchema={DisplayingErrorMessagesSchema}
             onSubmit={async values => {
                 try {
-                    let response;
-                    if (props.login) {
-                        response = await axios({
-                            method: 'post',
-                            url: 'http://localhost:8001/api/auth/login',
-                            data: values
-                        })
-                        console.log(response)
-                        // if (newUser) {
-                        //     Swal.fire({
-                        //         position: 'center',
-                        //         icon: 'success',
-                        //         title: 'Register Success',
-                        //         showConfirmButton: false,
-                        //         timer: 1500
-                        //     }).then(() => {
-                        //         Formik.resetForm({
-                        //             username: '',
-                        //             password: '',
-                        //             email: '',
-                        //         })
-                        //         navigate('/login')
-                        //     })
-                        // }
-                    } else {
-                        response = await axios({
-                            method: 'post',
-                            url: 'http://localhost:8001/api/auth/register',
-                            data: values
-                        })
-                        console.log(response)
-                        // if (newUser) {
-                        //     Swal.fire({
-                        //         position: 'center',
-                        //         icon: 'success',
-                        //         title: 'Register Success',
-                        //         showConfirmButton: false,
-                        //         timer: 1500
-                        //     }).then(() => {
-                        //         Formik.resetForm({
-                        //             username: '',
-                        //             password: '',
-                        //             email: '',
-                        //         })
-                        //         navigate('/login')
-                        //     })
-                        // }
+                    let response = await axios({
+                        method: 'post',
+                        url: 'http://localhost:8001/api/auth/login',
+                        data: {
+                            username: values.username,
+                            password: values.password,
+                        }
+                    })
+                    if (response.data) {
+                        let token = response.data.token.split(' ')[1];
+                        console.log(response.data);
+                      
+                        // navigate('/products')
                     }
-
+                  
                 } catch (error) {
                     Swal.fire({
                         icon: 'error',
@@ -98,24 +63,10 @@ const LoginSignup = (props) => {
         >
             {({ errors, touched }) => (
                 <div>
-                    <h1 className=" p-5" style={{ textAlign: 'center' }}>{props.login}</h1>
+                    <h1 className=" p-5" style={{ textAlign: 'center' }}>Login</h1>
                     <div className="container col-3 p-3" style={{ boxShadow: 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px', borderRadius: '10px' }}>
                         <Form>
-                            {props.login ? null : (
-                                <>
-                                    <div className='form-label'>Email</div>
-                                    <Field
-                                        className={`form-control mb-3 ${touched.email && errors.email ? 'is-invalid' : ''}`}
-                                        name="email"
-                                        type="text"
-                                        placeholder="Enter email"
-                                    />
-                                    <ErrorMessage
-                                        component="div"
-                                        name='email'
-                                        className='invalid-feedback' />
-                                </>
-                            )}
+                        
                             <div className='form-label'>Username</div>
                             <Field
                                 className={`form-control ${touched.username && errors.username ? 'is-invalid' : ''}`}
@@ -142,12 +93,7 @@ const LoginSignup = (props) => {
                                 type="submit"
                                 style={{ width: '100%' }}>Submit</button>
                             <div className="row">
-                                {props.login ? (
                                     <p>Have no account? <span style={{ cursor: 'pointer' }} onClick={() => navigate('/register')} className="link-primary">Register</span></p>
-                                ) : (
-                                    <p>Have an account? <span style={{ cursor: 'pointer' }} onClick={() => navigate('/login')} className="link-primary">Login</span></p>
-                                )}
-
                             </div>
                         </Form>
                     </div>
@@ -158,6 +104,6 @@ const LoginSignup = (props) => {
     )
 }
 
-export default LoginSignup;
+export default Login;
 
 

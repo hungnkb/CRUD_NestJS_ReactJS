@@ -5,7 +5,7 @@ import { IUser } from 'src/api/users/interfaces/user.interface';
 import { loginUserDto } from '../dto/loginUserDto.dto';
 import { UserService } from 'src/api/users/services/user.service';
 import { ConfigService } from '@nestjs/config';
-import { log } from 'console';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/api/users/dto/createUserDto.dto';
 
 @Injectable()
@@ -20,10 +20,17 @@ export class AuthService {
 
     async login(body: loginUserDto) {
         let { username, password } = body;
-        let user = this.userModel.findOne({ username, password });
+        console.log(username, password);
+        
+        let user = await this.userModel.findOne({ username });
+
         if (user) {
-            const token = await this.jwtService.signAsync({ username }, { expiresIn: this.configService.get('EXPIRES_IN'), secret: this.configService.get('JWT_SECRET') })
-            return token
+            const isMatch = await bcrypt.compare(password, user.password);
+
+            if (isMatch) {
+                const token = await this.jwtService.signAsync({ username }, { expiresIn: this.configService.get('EXPIRES_IN'), secret: this.configService.get('JWT_SECRET') })
+                return ({ token: 'Bearer ' + token, user: { username: user.username, email: user.email, role: user.role } })
+            }
         } else {
             throw new BadRequestException('Wrong username or password');
         }
